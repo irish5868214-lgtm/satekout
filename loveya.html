@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Love You 💖</title>
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Poppins,sans-serif;
+    }
+
+    body{
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      overflow:hidden;
+      background:linear-gradient(135deg,#ffd6e7,#ffc2d1,#ffe5ec);
+    }
+
+    .card{
+      width:90%;
+      max-width:420px;
+      background:#fff0f5;
+      padding:30px 25px;
+      border-radius:30px;
+      text-align:center;
+      border:3px solid #ff4f81;
+      box-shadow:0 10px 30px rgba(255,105,180,0.25);
+      position:relative;
+      z-index:10;
+    }
+
+    h1{
+      color:#ff2e63;
+      font-size:2.2rem;
+      margin-bottom:15px;
+    }
+
+    p{
+      color:#d63384;
+      line-height:1.7;
+      margin-bottom:20px;
+    }
+
+    .gif{
+      width:180px;
+      height:180px;
+      object-fit:cover;
+      border-radius:20px;
+      border:4px solid #ff4f81;
+      margin-bottom:20px;
+    }
+
+    .buttons{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:15px;
+      margin-top:15px;
+      flex-wrap:nowrap;
+    }
+
+    button{
+      border:none;
+      cursor:pointer;
+      transition:0.25s;
+      font-weight:600;
+      padding:12px 24px;
+      border-radius:14px;
+      font-size:1rem;
+    }
+
+    #yesBtn{
+      background:#ff4f81;
+      color:white;
+      border:3px solid #ff85a2;
+    }
+
+    #yesBtn:hover{
+      transform:scale(1.05);
+      background:#ff2e63;
+    }
+
+    #noBtn{
+      background:#fff;
+      color:#ff4f81;
+      border:2px solid #ff4f81;
+    }
+
+    .loveText-container{
+      display:none;
+      margin-top:22px;
+      animation:pop .4s ease;
+    }
+
+    .loveText{
+      background:#ffe5ec;
+      border:2px dashed #ff4f81;
+      padding:18px;
+      border-radius:18px;
+      color:#d63384;
+      line-height:1.8;
+      font-weight:600;
+    }
+
+    .heart{
+      position:absolute;
+      font-size:24px;
+      animation:float 5s linear infinite;
+      opacity:0.8;
+      z-index:1;
+    }
+
+    @keyframes float{
+      0%{
+        transform:translateY(0);
+        opacity:1;
+      }
+
+      100%{
+        transform:translateY(-110vh);
+        opacity:0;
+      }
+    }
+
+    @keyframes pop{
+      from{
+        transform:scale(.5);
+        opacity:0;
+      }
+
+      to{
+        transform:scale(1);
+        opacity:1;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+
+    <h1>Ma" 💖</h1>
+
+    <p>
+      မောင့်ကိုပြန်စဉ်းစားပေးပါလားနော်🥺💞
+    </p>
+
+    <img
+      class="gif"
+      src="2.jpg"
+      alt="Love"
+      onerror="this.src='https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif'"
+    >
+
+    <div class="buttons">
+      <button id="yesBtn">Yesss 💖</button>
+      <button id="noBtn">Noooo 🥺</button>
+    </div>
+
+    <div class="loveText-container" id="loveAction">
+      <div class="loveText">
+        မောင့်မှာ မမ မကြိုက်တဲ့အချက်တွေရှိတယ်ဆိုတာ မောင်သိပါတယ် 
+        မောင့်ကို ပြုပြင်ဖို့ အခွင့်အရေးလေး တခါလောက်ပေးပါလား မမရယ်နော် 🥺  
+        မောင်အများကြီးပြုပြင်ပြီး မမနဲ့အဆင်ပြေအောင်နေမယ်လေ 💖
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const loveAction = document.getElementById("loveAction");
+
+    let yesSize = 1;
+
+    // YES BUTTON
+    yesBtn.addEventListener("click", () => {
+
+      loveAction.style.display = "block";
+
+      noBtn.style.display = "none";
+
+    });
+
+    // NO BUTTON
+    noBtn.addEventListener("click", () => {
+
+      yesSize += 4;
+
+      yesBtn.style.padding =
+        (12 + yesSize) + "px " +
+        (24 + yesSize * 2) + "px";
+
+      yesBtn.style.fontSize =
+        (16 + yesSize * 0.5) + "px";
+
+    });
+
+    // FLOATING HEARTS
+    function createHeart(){
+
+      const heart = document.createElement("div");
+
+      heart.classList.add("heart");
+
+      heart.innerHTML = "💖";
+
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.bottom = "-20px";
+
+      heart.style.animationDuration =
+        (Math.random() * 3 + 3) + "s";
+
+      document.body.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      },6000);
+    }
+
+    setInterval(createHeart,500);
+
+  </script>
+
+</body>
+</html>
