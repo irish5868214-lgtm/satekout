@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heart Rain</title>
+
+<style>
+
+body{
+    margin:0;
+    overflow:hidden;
+    background:white;
+}
+
+canvas{
+    display:block;
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+
+<!-- MUSIC -->
+<audio id="music" loop preload="auto">
+    <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const centerName = [
+    "အိုးမိုင်ပေါ့",
+    "ငါ့ရဲ့အရူးလေး",
+    "ကလေးလေး Baby",
+    "သဲသဲလေးက ချစ်စရာကြီး😖💞"
+];
+const heartText = "ILoveYou";
+const rainText = "ILY";
+
+const heartParticles = [];
+const rainDrops = [];
+
+
+// ================= HEART =================
+function createHeart(){
+
+    for(let t = 0; t < Math.PI * 2; t += 0.08){
+
+        const x = 16 * Math.pow(Math.sin(t),3);
+
+        const y = -(
+            13 * Math.cos(t)
+            - 5 * Math.cos(2*t)
+            - 2 * Math.cos(3*t)
+            - Math.cos(4*t)
+        );
+
+        heartParticles.push({
+            x,
+            y,
+            offset: Math.random() * 10
+        });
+    }
+}
+
+
+// ================= RAIN =================
+const fontSize = 18;
+const columns = Math.floor(canvas.width / fontSize);
+
+for(let i=0; i<columns; i++){
+
+    rainDrops[i] = Math.random() * -500;
+
+}
+
+
+// ================= ANIMATE =================
+function animate(){
+
+    ctx.fillStyle = "rgba(255,255,255,0.15)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    // ===== ILY RAIN =====
+    ctx.font = "bold 16px Arial";
+    ctx.fillStyle = "white";
+
+    ctx.shadowBlur = 0;
+
+    for(let i=0; i<rainDrops.length; i++){
+
+        const x = i * fontSize;
+        const y = rainDrops[i];
+
+        ctx.fillText(rainText, x, y);
+
+        rainDrops[i] += 2;
+
+        if(rainDrops[i] > canvas.height){
+
+            rainDrops[i] = Math.random() * -300;
+
+        }
+    }
+
+
+    // ===== HEART =====
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    const scale = 13;
+
+    ctx.font = "bold 11px Arial";
+    ctx.fillStyle = "white";
+
+    heartParticles.forEach((p)=>{
+
+        const vib =
+        Math.sin(Date.now()*0.008 + p.offset) * 1.5;
+
+        const x =
+        centerX + p.x * scale + vib;
+
+        const y =
+        centerY + p.y * scale + vib;
+
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#ff6699";
+
+        ctx.fillText(heartText, x, y);
+
+    });
+
+
+    // ===== CENTER NAME =====
+    ctx.font = "bold 16px Arial";
+
+    ctx.fillStyle = "white";
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = "red";
+
+    const centerX_pos = canvas.width / 2;
+    const centerY_pos = canvas.height / 2;
+
+    const move =
+    Math.sin(Date.now()*0.005) * 3;
+
+    const lineHeight = 20;
+    const totalLines = centerName.length;
+    const startY = centerY_pos - (totalLines * lineHeight) / 2;
+
+    centerName.forEach((line, index) => {
+        const y = startY + index * lineHeight + move;
+        ctx.fillText(line, centerX_pos, y);
+    });
+
+    requestAnimationFrame(animate);
+
+}
+
+createHeart();
+animate();
+
+
+// ================= RESIZE =================
+window.addEventListener("resize", ()=>{
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+});
+
+
+// ================= MOBILE MUSIC FIX =================
+const music = document.getElementById("music");
+
+async function startMusic() {
+
+    try {
+
+        await music.play();
+
+        console.log("music started");
+
+        document.removeEventListener("touchstart", startMusic);
+        document.removeEventListener("click", startMusic);
+
+    } catch(err) {
+
+        console.log(err);
+
+    }
+}
+
+// PHONE
+document.addEventListener(
+    "touchstart",
+    startMusic,
+    { once:true }
+);
+
+// LAPTOP
+document.addEventListener(
+    "click",
+    startMusic,
+    { once:true }
+);
+
+</script>
+
+</body>
+</html>
