@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Call Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #0099ff;
+            --dark-blue: #0077cc;
+            --light-blue: #33b5ff;
+            --danger-red: #ff3333;
+            --success-green: #33cc33;
+            --gray-light: #f0f0f0;
+            --gray-medium: #e0e0e0;
+            --gray-dark: #333333;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        /* Container */
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .screen {
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Call Card (Incoming Call) */
+        .call-card {
+            background-color: var(--white);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .caller-avatar {
+            margin-bottom: 25px;
+        }
+
+        .caller-avatar img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary-blue);
+        }
+
+        .caller-info h2 {
+            font-size: 24px;
+            color: var(--gray-dark);
+            margin-bottom: 8px;
+        }
+
+        .caller-info p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        #callStatus {
+            font-size: 14px;
+            color: var(--primary-blue);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Buttons */
+        .call-buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-decline {
+            background-color: var(--danger-red);
+            color: var(--white);
+            min-width: 120px;
+        }
+
+        .btn-decline:hover {
+            background-color: #ff1a1a;
+        }
+
+        .btn-answer {
+            background-color: var(--success-green);
+            color: var(--white);
+            min-width: 120px;
+        }
+
+        .btn-answer:hover {
+            background-color: #1ab31a;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            min-width: 140px;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-blue);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-red);
+            color: var(--white);
+            min-width: 140px;
+        }
+
+        .btn-danger:hover {
+            background-color: #ff1a1a;
+        }
+
+        /* Decline Screen */
+        .decline-card {
+            background-color: var(--white);
+            border-radius: 20px;
+            padding: 30px 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .decline-card h2 {
+            color: var(--gray-dark);
+            margin-bottom: 25px;
+            font-size: 22px;
+        }
+
+        /* Video Container */
+        .video-container {
+            width: 100%;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: #000;
+            aspect-ratio: 16 / 9;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* Answer Screen */
+        .answer-card {
+            background-color: var(--white);
+            border-radius: 20px;
+            padding: 30px 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .video-frame-section {
+            margin-bottom: 25px;
+            margin-left: 0;
+        }
+
+        .video-frame-section h2 {
+            color: var(--gray-dark);
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .video-frame {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: #000;
+            margin-bottom: 20px;
+            aspect-ratio: 16 / 9;
+        }
+
+        .video-frame video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* Apology Section */
+        .apology-section {
+            margin-bottom: 25px;
+        }
+
+        #apologyLabel {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-dark);
+            margin-bottom: 10px;
+        }
+
+        #apologyText {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid var(--gray-medium);
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            background-color: var(--white);
+        }
+
+        #apologyText:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 10px rgba(0, 153, 255, 0.2);
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        /* Call Action Buttons */
+        .call-action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Mobile Responsive Design */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .call-card,
+            .decline-card,
+            .answer-card {
+                padding: 25px 15px;
+                border-radius: 15px;
+                max-width: 100%;
+            }
+
+            .caller-avatar img {
+                width: 100px;
+                height: 100px;
+            }
+
+            .caller-info h2 {
+                font-size: 20px;
+            }
+
+            .call-buttons {
+                flex-direction: column;
+                gap: 12px;
+                margin-top: 30px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+                padding: 12px 20px;
+            }
+
+            .call-action-buttons {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .video-frame-section {
+                margin-left: 0;
+            }
+
+            #apologyText {
+                min-height: 120px;
+            }
+
+            .answer-card {
+                padding: 20px 15px;
+            }
+        }
+
+        /* Tablet Responsive Design */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .container {
+                max-width: 100%;
+            }
+
+            .call-card,
+            .decline-card,
+            .answer-card {
+                max-width: 100%;
+            }
+
+            .call-buttons {
+                gap: 20px;
+            }
+
+            .call-action-buttons {
+                gap: 15px;
+            }
+        }
+
+        /* Desktop Responsive Design */
+        @media (min-width: 769px) {
+            .container {
+                max-width: 600px;
+            }
+
+            .call-card {
+                padding: 50px 40px;
+            }
+
+            .decline-card,
+            .answer-card {
+                padding: 40px 35px;
+            }
+
+            .answer-card {
+                max-height: 85vh;
+            }
+
+            .call-buttons {
+                gap: 30px;
+            }
+
+            .call-action-buttons {
+                gap: 20px;
+            }
+
+            .video-frame-section {
+                margin-left: 0;
+            }
+        }
+
+        /* Scrollbar Styling */
+        .answer-card::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .answer-card::-webkit-scrollbar-track {
+            background: var(--gray-light);
+            border-radius: 10px;
+        }
+
+        .answer-card::-webkit-scrollbar-thumb {
+            background: var(--primary-blue);
+            border-radius: 10px;
+        }
+
+        .answer-card::-webkit-scrollbar-thumb:hover {
+            background: var(--dark-blue);
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Incoming Call Screen -->
+        <div id="incomingCall" class="screen active">
+            <div class="call-card">
+                <div class="caller-avatar">
+                    <img src="cat2.jpg" alt="Caller">
+                </div>
+                <div class="caller-info">
+                    <h2 id="callerName">ရည်းစားဟောင်း🐶</h2>
+                    <p id="callerPhone">+959 123 456 789</p>
+                    <p id="callStatus">Calling...</p>
+                </div>
+                <div class="call-buttons">
+                    <button id="declineBtn" class="btn btn-decline">
+                        <span class="btn-icon">📵</span>
+                        <span class="btn-text">Decline</span>
+                    </button>
+                    <button id="answerBtn" class="btn btn-answer">
+                        <span class="btn-icon">☎️</span>
+                        <span class="btn-text">Answer</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Decline Screen (Video) -->
+        <div id="declineScreen" class="screen">
+            <div class="decline-card">
+                <h2 id="declineTitle">ဖုန်းကိုင်တာပဲကြားချင်တယ်ဟာ</h2>
+                <div class="video-container">
+                    <video id="declineVideo" controls>
+                        <source src="mo.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <button id="backFromDeclineBtn" class="btn btn-primary">
+                    <span>Back</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Answer Screen (Apology Video Call) -->
+        <div id="answerScreen" class="screen">
+            <div class="answer-card">
+                <div class="video-frame-section">
+                    <h2 id="apologyTitle">ဖုန်းကိုင်ပြီပေါ့လေ</h2>
+                    <div class="video-frame">
+                        <video id="answerVideo" controls>
+                            <source src="mem.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+
+                <div class="apology-section">
+                    <label id="apologyLabel" for="apologyText">Your Message:</label>
+                    <textarea id="apologyText" placeholder="Write your apology or message here..." maxlength="5000"></textarea>
+                    <div class="char-count">
+                        <span id="charCount">0</span> / 5000
+                    </div>
+                </div>
+
+                <div class="call-action-buttons">
+                    <button id="endCallBtn" class="btn btn-danger">
+                        <span class="btn-icon">📵</span>
+                        <span>End Call</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default message
+        const DEFAULT_MESSAGE = "မောင်တို့သာမပြတ်ခဲ့ရင် ဒီနှစ်တစ်နှစ်ပြည့်ပြီလေ မောင်မှားခဲ့တာတွေအတွက် တောင်းပန်ပါတယ်နော်🥺 တခါလောက်အခွင့်အရေးပြန်ပေးနိုင်မလား မမရယ်🥺";
+        
+        let typingTimeoutId = null;
+
+        // Typing animation function
+        function typeMessage(message, targetElement, speed = 50) {
+            // Clear any existing typing animation
+            if (typingTimeoutId) {
+                clearTimeout(typingTimeoutId);
+            }
+
+            targetElement.value = '';
+            let index = 0;
+
+            function typeNextCharacter() {
+                if (index < message.length) {
+                    targetElement.value += message[index];
+                    document.getElementById('charCount').textContent = targetElement.value.length;
+                    index++;
+                    typingTimeoutId = setTimeout(typeNextCharacter, speed);
+                } else {
+                    typingTimeoutId = null;
+                }
+            }
+
+            typeNextCharacter();
+        }
+
+        // Ringtone management
+        let audioContext = null;
+        let ringtoneOscillators = [];
+        let ringtoneGains = [];
+        let isRingtonePlaying = false;
+        let ringtoneTimeoutId = null;
+
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function stopAllRingtones() {
+            // Stop all oscillators
+            ringtoneOscillators.forEach(osc => {
+                try {
+                    osc.stop();
+                } catch (e) {
+                    // Already stopped
+                }
+            });
+            
+            ringtoneOscillators = [];
+            ringtoneGains = [];
+            
+            // Clear timeout
+            if (ringtoneTimeoutId) {
+                clearTimeout(ringtoneTimeoutId);
+                ringtoneTimeoutId = null;
+            }
+
+            isRingtonePlaying = false;
+        }
+
+        function playRingtonePattern() {
+            if (!isRingtonePlaying || !audioContext) return;
+
+            initAudioContext();
+
+            const now = audioContext.currentTime;
+            
+            // iPhone ringtone melody
+            const notes = [
+                { freq: 1046.50, duration: 0.15 },
+                { freq: 1318.51, duration: 0.15 },
+                { freq: 1567.98, duration: 0.15 },
+                { freq: 1318.51, duration: 0.30 },
+                { freq: 1046.50, duration: 0.15 },
+                { freq: 1318.51, duration: 0.15 },
+                { freq: 1567.98, duration: 0.15 },
+                { freq: 1318.51, duration: 0.30 }
+            ];
+
+            let totalDuration = 0;
+
+            notes.forEach(note => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.value = note.freq;
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                const startTime = now + totalDuration;
+                const endTime = startTime + note.duration;
+                
+                gain.gain.setValueAtTime(0.3, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, endTime);
+                
+                osc.start(startTime);
+                osc.stop(endTime);
+                
+                ringtoneOscillators.push(osc);
+                ringtoneGains.push(gain);
+                
+                totalDuration += note.duration;
+            });
+
+            // Schedule next pattern
+            if (isRingtonePlaying) {
+                const patternDuration = totalDuration + 0.5;
+                ringtoneTimeoutId = setTimeout(() => {
+                    playRingtonePattern();
+                }, patternDuration * 1000);
+            }
+        }
+
+        function startRingtone() {
+            if (isRingtonePlaying) return;
+            
+            initAudioContext();
+            isRingtonePlaying = true;
+            playRingtonePattern();
+        }
+
+        function stopRingtone() {
+            isRingtonePlaying = false;
+            stopAllRingtones();
+        }
+
+        // Event Listeners
+        function initializeEventListeners() {
+            // Decline Button
+            document.getElementById('declineBtn').addEventListener('click', function() {
+                console.log('Decline clicked - stopping ringtone');
+                stopRingtone();
+                goToScreen('declineScreen');
+            });
+
+            // Answer Button
+            document.getElementById('answerBtn').addEventListener('click', function() {
+                console.log('Answer clicked - stopping ringtone');
+                stopRingtone();
+                // Start typing animation when opening answer screen
+                typeMessage(DEFAULT_MESSAGE, document.getElementById('apologyText'), 40);
+                goToScreen('answerScreen');
+            });
+
+            // Back from Decline
+            document.getElementById('backFromDeclineBtn').addEventListener('click', function() {
+                document.getElementById('declineVideo').pause();
+                document.getElementById('declineVideo').currentTime = 0;
+                goToScreen('incomingCall');
+                console.log('Back clicked - starting ringtone');
+                startRingtone();
+            });
+
+            // End Call - Go back to incoming call screen
+            document.getElementById('endCallBtn').addEventListener('click', function() {
+                console.log('End Call clicked - stopping ringtone and returning');
+                if (typingTimeoutId) {
+                    clearTimeout(typingTimeoutId);
+                }
+                document.getElementById('answerVideo').pause();
+                document.getElementById('answerVideo').currentTime = 0;
+                document.getElementById('apologyText').value = '';
+                document.getElementById('charCount').textContent = '0';
+                stopRingtone();
+                goToScreen('incomingCall');
+                console.log('Starting ringtone again');
+                startRingtone();
+            });
+
+            // Character Count (for manual typing)
+            document.getElementById('apologyText').addEventListener('input', function() {
+                // Stop typing animation when user types manually
+                if (typingTimeoutId) {
+                    clearTimeout(typingTimeoutId);
+                    typingTimeoutId = null;
+                }
+                document.getElementById('charCount').textContent = this.value.length;
+            });
+        }
+
+        // Screen Navigation
+        function goToScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+
+            const targetScreen = document.getElementById(screenId);
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+            }
+        }
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const currentScreen = document.querySelector('.screen.active');
+                if (currentScreen && currentScreen.id !== 'incomingCall') {
+                    if (currentScreen.id === 'declineScreen') {
+                        document.getElementById('backFromDeclineBtn').click();
+                    } else if (currentScreen.id === 'answerScreen') {
+                        document.getElementById('endCallBtn').click();
+                    }
+                }
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            // Start ringtone
+            setTimeout(() => {
+                console.log('Starting initial ringtone');
+                startRingtone();
+            }, 300);
+        });
+
+        // Enable audio context on first interaction
+        document.addEventListener('click', function() {
+            if (!audioContext) {
+                initAudioContext();
+            }
+        }, { once: true });
+
+        document.addEventListener('touchstart', function() {
+            if (!audioContext) {
+                initAudioContext();
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>
