@@ -154,10 +154,19 @@
     </style>
 </head>
 <body>
+<audio id="bgm" loop>
+  <source src="daylight.mp3" type="audio/mpeg">
+</audio>
 
+<script>
+window.addEventListener("click", () => {
+  const music = document.getElementById("bgm");
+  music.play();
+}, { once: true });
+</script>
     <div id="page1" class="container">
         <h1 style="color: var(--primary-pink); text-shadow: 1px 1px white;">Choose Your Gift 🎁</h1>
-         <p style="color: #2F4F4F;">Happy 1 monthsary prr ကိုကိုရဲ့ဘေဘီလေးရေ🍓🍓</p>
+         <p style="color: #2F4F4F;">Happy Birthday par kokoe" yay"❤️</p>
         
         <p style="color: #2F4F4F;">ပုံးလေးတွေကို တစ်ခုချင်းနှိပ်ကြည့်ပါဦးနော်</p>
         
@@ -196,15 +205,15 @@
         const giftData = [
             {
                 img: "1.jpg", 
-                wish: "<b> Wish You</b><br>ကိုကိုတို့ 1 month ကနေစပြီး နောက် လမယ့် monthsary တိုင်းကို တူတူဖြတ်ကျော်သွားကြရအောင်နော်❤️<br>Starting from our 1-month anniversary, let’s continue celebrating every monthsary together and go through all the upcoming months side by side. ❤️"
+                wish: "<b> Wish You</b><br>မွေးနေ့မှာပျော်ရွင်ပါစေအချစ်ရေ💗"
             },
             {
                 img: "2.jpg", 
-                wish: "<b> For You</b><br>ကိုယ့်ဘဝထဲကို ၀င်ရောက်လာပေးလို့ ကျေးဇူများကြီးတင်ပါတယ်နော်🌹<br>Thank you for being part of my life🌹."
+                wish: "<b> For You</b><br>ကိုကိုကို့အများကြီချစ်တယ်နော်🥺💕"
             },
             {
                 img: "3.jpg",
-                wish: "<b> Promise</b><br>ဘယ်ချိန်ဖြစ်ဖြစ် အနားမှာ အမြဲရှိ‌နေ ပေးမယ်လို့ ကတိပေးပါတယ်ဗျာ🙄🫶🏻<br>I will always be there for you🙄🫶🏻"
+                wish: "<b> Promise</b><br>ဆန္ဒနဲ့ဘ၀ထပ်တူကျပြီး စိတ်ချမ်းသာကိုယ်ကျန်းမာနဲ့ဘ၀ကိုဖြတ်သန်းပြီးချစ်ရတဲ့မိသားစုနဲ့လည်းပျော်ရွင်နိုင်ပါစေကိုကို 🫶💕"
             }
         ];
 
