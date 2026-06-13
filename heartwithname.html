@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Small Heart with Name</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        /* Page 1 - Heart animation */
+        .page1 {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* Page 2 - Grid of photos */
+        .page2 {
+            width: 100vw;
+            min-height: 100vh;
+            background-color: #000;
+            padding: 60px 20px 20px 20px;
+            display: none;
+            overflow-y: auto;
+        }
+
+        .page2.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .photo-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .photo-row {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .photo-item {
+            width: 140px;
+            height: 140px;
+            border: 3px solid white;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 100, 150, 0.6);
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .photo-item:hover {
+            box-shadow: 0 0 25px rgba(255, 100, 150, 1), 0 0 40px rgba(255, 100, 150, 0.8);
+            transform: scale(1.1);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Modal for viewing full photo */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            pointer-events: all;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+            padding: 20px;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 90vw;
+            height: 90vh;
+            max-width: 1000px;
+            max-height: 800px;
+            background: #1a1a1a;
+            border: 3px solid white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(255, 100, 150, 1);
+            animation: modalPop 0.4s ease-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes modalPop {
+            0% { transform: scale(0.3); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-content img {
+            width: auto;
+            height: auto;
+            max-width: 85%;
+            max-height: 85%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10001;
+            background: rgba(0, 0, 0, 0.7);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 100, 150, 0.9);
+            transform: rotate(90deg);
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 100, 150, 0.8);
+            color: white;
+            border: 2px solid white;
+            font-size: 28px;
+            padding: 15px 20px;
+            cursor: pointer;
+            border-radius: 50%;
+            z-index: 10001;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 100, 150, 1);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-btn.prev {
+            left: 20px;
+        }
+
+        .nav-btn.next {
+            right: 20px;
+        }
+
+        .photo-counter {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 10001;
+            border: 2px solid rgba(255, 100, 150, 0.8);
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 100, 150, 0.8);
+            color: white;
+            border: 2px solid white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 5000;
+            transition: all 0.3s;
+            display: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 100, 150, 1);
+            transform: scale(1.05);
+        }
+
+        .back-btn.show {
+            display: block;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .page2 {
+                padding: 70px 15px 20px 15px;
+            }
+
+            .photo-grid {
+                max-width: 100%;
+                gap: 20px;
+            }
+
+            .photo-row {
+                gap: 15px;
+            }
+
+            .photo-item {
+                width: 110px;
+                height: 110px;
+                border: 2px solid white;
+            }
+
+            .modal.active {
+                padding: 15px;
+            }
+
+            .modal-content {
+                width: 95vw;
+                height: 80vh;
+                max-width: 600px;
+                max-height: 600px;
+                border: 2px solid white;
+                border-radius: 12px;
+            }
+
+            .modal-content img {
+                max-width: 90%;
+                max-height: 90%;
+            }
+
+            .nav-btn {
+                width: 40px;
+                height: 40px;
+                padding: 10px 12px;
+                font-size: 20px;
+            }
+
+            .nav-btn.prev {
+                left: 10px;
+            }
+
+            .nav-btn.next {
+                right: 10px;
+            }
+
+            .close-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 24px;
+                top: 10px;
+                right: 10px;
+            }
+
+            .photo-counter {
+                font-size: 14px;
+                padding: 8px 15px;
+                bottom: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page2 {
+                padding: 70px 10px 15px 10px;
+            }
+
+            .photo-grid {
+                gap: 15px;
+            }
+
+            .photo-row {
+                gap: 12px;
+            }
+
+            .photo-item {
+                width: 90px;
+                height: 90px;
+                border: 2px solid white;
+                border-radius: 6px;
+            }
+
+            .modal.active {
+                padding: 10px;
+            }
+
+            .modal-content {
+                width: 98vw;
+                height: 75vh;
+                max-width: 400px;
+                max-height: 500px;
+                border: 2px solid white;
+                border-radius: 10px;
+            }
+
+            .modal-content img {
+                max-width: 95%;
+                max-height: 95%;
+            }
+
+            .nav-btn {
+                width: 35px;
+                height: 35px;
+                padding: 8px 10px;
+                font-size: 16px;
+            }
+
+            .nav-btn.prev {
+                left: 5px;
+            }
+
+            .nav-btn.next {
+                right: 5px;
+            }
+
+            .close-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 20px;
+                top: 5px;
+                right: 5px;
+            }
+
+            .back-btn {
+                padding: 10px 16px;
+                font-size: 12px;
+                top: 12px;
+                left: 12px;
+            }
+
+            .photo-counter {
+                font-size: 12px;
+                padding: 6px 12px;
+                bottom: 12px;
+            }
+
+            canvas {
+                width: 100vw !important;
+                height: 100vh !important;
+            }
+        }
+    </style>
+</head>
+<body>
+   <audio id="bgm" loop>
+  <source src="music1.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+window.addEventListener("click", () => {
+  const music = document.getElementById("bgm");
+  music.play();
+}, { once: true });
+</script>
+
+    <!-- Page 1 - Heart -->
+    <div class="page1" id="page1">
+        <canvas id="heartCanvas"></canvas>
+    </div>
+
+    <!-- Page 2 - Photo Grid -->
+    <div class="page2" id="page2">
+        <div class="photo-grid">
+            <div class="photo-row">
+                <div class="photo-item" data-index="0">
+                    <img src="1.jpg" alt="Photo 1">
+                </div>
+                <div class="photo-item" data-index="1">
+                    <img src="2.jpg" alt="Photo 2">
+                </div>
+                <div class="photo-item" data-index="2">
+                    <img src="3.jpg" alt="Photo 3">
+                </div>
+            </div>
+            <div class="photo-row">
+                <div class="photo-item" data-index="3">
+                    <img src="4.jpg" alt="Photo 4">
+                </div>
+                <div class="photo-item" data-index="4">
+                    <img src="5.jpg" alt="Photo 5">
+                </div>
+                <div class="photo-item" data-index="5">
+                    <img src="6.jpg" alt="Photo 6">
+                </div>
+            </div>
+            <div class="photo-row">
+                <div class="photo-item" data-index="6">
+                    <img src="7.jpg" alt="Photo 7">
+                </div>
+                <div class="photo-item" data-index="7">
+                    <img src="8.jpg" alt="Photo 8">
+                </div>
+                <div class="photo-item" data-index="8">
+                    <img src="9.jpg" alt="Photo 9">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <button class="back-btn" id="backBtn">← Back</button>
+
+    <!-- Modal for viewing full photo -->
+    <div class="modal" id="photoModal">
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="Photo">
+            <span class="close-btn" id="closeBtn">&times;</span>
+            <button class="nav-btn prev" id="prevBtn">❮</button>
+            <button class="nav-btn next" id="nextBtn">❯</button>
+            <div class="photo-counter">
+                <span id="currentPhoto">1</span> / <span id="totalPhotos">9</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Audio initialization
+        window.addEventListener("click", () => {
+            const music = document.getElementById("bgm");
+            music.play();
+        }, { once: true });
+
+        // Page navigation
+        const page1 = document.getElementById('page1');
+        const page2 = document.getElementById('page2');
+        const backBtn = document.getElementById('backBtn');
+
+        function goToPage2() {
+            page1.style.display = 'none';
+            page2.classList.add('active');
+            backBtn.classList.add('show');
+        }
+
+        function goToPage1() {
+            page1.style.display = 'flex';
+            page2.classList.remove('active');
+            backBtn.classList.remove('show');
+            closePhoto();
+        }
+
+        backBtn.addEventListener('click', goToPage1);
+
+        // Heart animation on page 1
+        const canvas = document.getElementById('heartCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const heartWords = "ILoveYou"; 
+        const centerName = "Baby"; 
+        const heartParticles = [];
+
+        const photoUrls = [
+            "1.jpg",
+            "2.jpg",
+            "3.jpg",
+            "4.jpg",
+            "5.jpg",
+            "6.jpg",
+            "7.jpg",
+            "8.jpg",
+            "9.jpg"
+        ];
+
+        // Modal functionality
+        let currentPhotoIndex = 0;
+
+        const modal = document.getElementById('photoModal');
+        const modalImage = document.getElementById('modalImage');
+        const closeBtn = document.getElementById('closeBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentPhotoSpan = document.getElementById('currentPhoto');
+        const totalPhotosSpan = document.getElementById('totalPhotos');
+
+        totalPhotosSpan.textContent = photoUrls.length;
+
+        function openPhoto(index) {
+            currentPhotoIndex = index;
+            modalImage.src = photoUrls[index];
+            currentPhotoSpan.textContent = index + 1;
+            modal.classList.add('active');
+        }
+
+        function closePhoto() {
+            modal.classList.remove('active');
+        }
+
+        closeBtn.addEventListener('click', closePhoto);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closePhoto();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentPhotoIndex = (currentPhotoIndex - 1 + photoUrls.length) % photoUrls.length;
+            openPhoto(currentPhotoIndex);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentPhotoIndex = (currentPhotoIndex + 1) % photoUrls.length;
+            openPhoto(currentPhotoIndex);
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (modal.classList.contains('active')) {
+                if (e.key === 'ArrowLeft') prevBtn.click();
+                if (e.key === 'ArrowRight') nextBtn.click();
+                if (e.key === 'Escape') closePhoto();
+            }
+        });
+
+        // Photo grid click handlers
+        document.querySelectorAll('.photo-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const index = parseInt(item.dataset.index);
+                openPhoto(index);
+            });
+        });
+
+        function initHeart() {
+            for (let t = 0; t < Math.PI * 2; t += 0.08) {
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                
+                heartParticles.push({
+                    baseX: x,
+                    baseY: y,
+                    randomOffset: Math.random() * 20
+                });
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            const scale = 13;
+
+            // Text around heart
+            ctx.font = "bold 11px Arial";
+            ctx.fillStyle = "white"; 
+            ctx.shadowBlur = 5;
+            ctx.shadowColor = "white";
+
+            heartParticles.forEach((p) => {
+                const vibration = Math.sin(Date.now() * 0.008 + p.randomOffset) * 1.5;
+                const x = centerX + p.baseX * scale + vibration;
+                const y = centerY + p.baseY * scale + vibration;
+                ctx.fillText(heartWords, x, y);
+            });
+
+            // Center text (clickable)
+            ctx.font = "bold 28px Arial, Pyidaungsu"; 
+            ctx.fillStyle = "white";
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "white";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            
+            const centerVib = Math.sin(Date.now() * 0.005) * 3;
+            ctx.fillText(centerName, centerX, centerY + centerVib);
+
+            requestAnimationFrame(animate);
+        }
+
+        // Click detection on center text
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // Check if click is within center text area
+            const distance = Math.sqrt(Math.pow(clickX - centerX, 2) + Math.pow(clickY - centerY, 2));
+            
+            if (distance < 60) {
+                goToPage2();
+            }
+        });
+
+        initHeart();
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+
+</body>
+</html>
